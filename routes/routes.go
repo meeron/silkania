@@ -7,4 +7,6 @@ import (
 
 func Config(app *fiber.App) {
 	app.Get("/", handlers.Index)
+	app.Get("/index/:name/search", handlers.Search)
+	app.Post("/index", handlers.CreateIndex)
 }
