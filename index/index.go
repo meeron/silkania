@@ -1,6 +1,7 @@
 package index
 
 import (
+	"errors"
 	"fmt"
 	"io/fs"
 	"os"
@@ -68,4 +69,23 @@ func Create(name string, lang string) error {
 
 	return nil
 
+}
+
+func Drop(name string) error {
+	ix := ixs[name]
+	if ix == nil {
+		return errors.New("index not found")
+	}
+
+	if err := ix.ix.Close(); err != nil {
+		return err
+	}
+	delete(ixs, name)
+
+	path := path.Join(indexPath, name)
+	if err := os.RemoveAll(path); err != nil {
+		return err
+	}
+
+	return nil
 }

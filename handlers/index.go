@@ -44,3 +44,14 @@ func CreateIndex(ctx *fiber.Ctx) error {
 
 	return ctx.SendStatus(201)
 }
+
+func DeleteIndex(ctx *fiber.Ctx) error {
+	name := ctx.Params("name")
+
+	if err := index.Drop(name); err != nil {
+		return ctx.Status(422).
+			JSON(Error{Code: "ServerError", Message: fmt.Sprintf("%v", err)})
+	}
+
+	return ctx.SendStatus(200)
+}
