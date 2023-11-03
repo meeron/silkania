@@ -1,7 +1,15 @@
 package main
 
-import "fmt"
+import (
+	"log"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/meeron/silkania/routes"
+)
 
 func main() {
-	fmt.Println("Hello from silkania")
+	app := fiber.New()
+	routes.Config(app)
+
+	log.Fatal(app.Listen(":3000"))
 }

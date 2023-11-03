@@ -3,3 +3,6 @@ build:
 
 run: build
 	./bin/silkania
+
+dev:
+	air
