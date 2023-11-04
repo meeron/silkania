@@ -45,6 +45,28 @@ func (ix *Index) Search(query string) ([]any, uint64, error) {
 	return items, result.Total, nil
 }
 
+func (ix *Index) GetDocument(id string) (any, error) {
+	query := bleve.NewDocIDQuery([]string{id})
+
+	searchRequest := bleve.NewSearchRequest(query)
+	searchRequest.Fields = []string{"*"}
+
+	result, err := ix.bleve.Search(searchRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	if result.Total == 0 {
+		return nil, nil
+	}
+
+	return result.Hits[0].Fields, nil
+}
+
+func (ix *Index) DeleteDocument(id string) error {
+	return ix.bleve.Delete(id)
+}
+
 func Get(name string) *Index {
 	return ixs[name]
 }

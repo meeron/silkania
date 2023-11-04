@@ -79,3 +79,40 @@ func IndexDocument(ctx *fiber.Ctx) error {
 
 	return ctx.SendStatus(200)
 }
+
+func GetDocument(ctx *fiber.Ctx) error {
+	name := ctx.Params("name")
+	id := ctx.Params("id")
+
+	ix := index.Get(name)
+	if ix == nil {
+		return ctx.Status(422).JSON(models.NotFoundError())
+	}
+
+	doc, err := ix.GetDocument(id)
+	if err != nil {
+		return ctx.Status(500).JSON(models.ServerError(err))
+	}
+
+	if doc == nil {
+		return ctx.SendStatus(204)
+	}
+
+	return ctx.JSON(doc)
+}
+
+func DeleteDocument(ctx *fiber.Ctx) error {
+	name := ctx.Params("name")
+	id := ctx.Params("id")
+
+	ix := index.Get(name)
+	if ix == nil {
+		return ctx.Status(422).JSON(models.NotFoundError())
+	}
+
+	if err := ix.DeleteDocument(id); err != nil {
+		return ctx.Status(500).JSON(models.ServerError(err))
+	}
+
+	return ctx.SendStatus(200)
+}
