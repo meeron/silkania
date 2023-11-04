@@ -74,3 +74,13 @@ func (ix *Index) Batch(idField string, items []map[string]any) error {
 
 	return ix.bleve.Batch(batch)
 }
+
+func (ix *Index) GetStats() map[string]any {
+	stats := ix.bleve.StatsMap()
+
+	docCount, _ := ix.bleve.DocCount()
+
+	stats["DocCount"] = docCount
+
+	return stats
+}

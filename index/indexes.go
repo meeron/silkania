@@ -100,6 +100,10 @@ func Drop(name string) error {
 	return nil
 }
 
+func All() map[string]*Index {
+	return ixs
+}
+
 func mapFields(document *mapping.DocumentMapping, fields map[string]models.FieldMapping) {
 	for name, v := range fields {
 

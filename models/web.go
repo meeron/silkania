@@ -14,3 +14,8 @@ type BatchReq struct {
 	IdField string
 	Items   []map[string]any
 }
+
+type ServerStats struct {
+	Uptime  string                    `json:"upTime"`
+	Indexes map[string]map[string]any `json:"indexes"`
+}

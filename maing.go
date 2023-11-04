@@ -3,10 +3,12 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/meeron/silkania/index"
 	"github.com/meeron/silkania/routes"
+	"github.com/meeron/silkania/server"
 )
 
 const (
@@ -22,6 +24,8 @@ func main() {
 	app := fiber.New()
 
 	routes.Config(app)
+
+	server.StartTime = time.Now()
 
 	log.Fatal(app.Listen(fmt.Sprintf(":%d", Port)))
 }

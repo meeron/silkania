@@ -7,13 +7,16 @@ import (
 
 func Config(app *fiber.App) {
 	app.Get("/", handlers.Index)
-	index := app.Group("/index")
+	app.Get("/stats", handlers.GetStats)
 
+	index := app.Group("/index")
 	index.Delete("/:name", handlers.DeleteIndex)
 	index.Post("/", handlers.CreateIndex)
 
 	index.Get("/:name/search", handlers.Search)
 	index.Put("/:name/batch", handlers.Batch)
+	index.Get("/:name/stats", handlers.GetIndexStats)
+
 	index.Get("/:name/:id", handlers.GetDocument)
 	index.Put("/:name/:id", handlers.IndexDocument)
 	index.Delete("/:name/:id", handlers.DeleteDocument)

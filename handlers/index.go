@@ -36,3 +36,14 @@ func DeleteIndex(ctx *fiber.Ctx) error {
 
 	return ok(ctx)
 }
+
+func GetIndexStats(ctx *fiber.Ctx) error {
+	name := ctx.Params("name")
+
+	ix := index.Get(name)
+	if ix == nil {
+		return notFoundError(ctx)
+	}
+
+	return ctx.JSON(ix.GetStats())
+}
