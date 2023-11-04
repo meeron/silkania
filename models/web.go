@@ -3,13 +3,18 @@ package models
 import "fmt"
 
 type Error struct {
-	Code    string
-	Message string
+	Code    string `json:"code"`
+	Message string `json:"message"`
 }
 
 type CreateIndexReq struct {
 	Name    string
 	Mapping IndexMapping
+}
+
+type SearchResult struct {
+	Total uint64 `json:"total"`
+	Items []any  `json:"items"`
 }
 
 func BadRequestError(message string) Error {

@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"fmt"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/meeron/silkania/index"
 	"github.com/meeron/silkania/models"
@@ -17,7 +15,15 @@ func Search(ctx *fiber.Ctx) error {
 		return ctx.Status(422).JSON(models.NotFoundError())
 	}
 
-	return ctx.SendString(fmt.Sprintf("Db: %s, Query: %s", name, q))
+	res, total, err := ix.Search(q)
+	if err != nil {
+		return ctx.Status(500).JSON(models.ServerError(err))
+	}
+
+	return ctx.JSON(models.SearchResult{
+		Total: total,
+		Items: res,
+	})
 }
 
 func CreateIndex(ctx *fiber.Ctx) error {
@@ -48,6 +54,27 @@ func DeleteIndex(ctx *fiber.Ctx) error {
 	if err := index.Drop(name); err != nil {
 		return ctx.Status(500).
 			JSON(models.ServerError(err))
+	}
+
+	return ctx.SendStatus(200)
+}
+
+func IndexDocument(ctx *fiber.Ctx) error {
+	var body any
+	name := ctx.Params("name")
+	id := ctx.Params("id")
+
+	if err := ctx.BodyParser(&body); err != nil {
+		return err
+	}
+
+	ix := index.Get(name)
+	if ix == nil {
+		return ctx.Status(422).JSON(models.NotFoundError())
+	}
+
+	if err := ix.IndexDocument(id, body); err != nil {
+		return ctx.Status(500).JSON(models.ServerError(err))
 	}
 
 	return ctx.SendStatus(200)

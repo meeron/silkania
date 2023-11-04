@@ -16,7 +16,33 @@ var ixs map[string]*Index = make(map[string]*Index)
 var indexPath string
 
 type Index struct {
-	ix bleve.Index
+	bleve bleve.Index
+}
+
+func (ix *Index) IndexDocument(id string, doc any) error {
+	return ix.bleve.Index(id, doc)
+}
+
+func (ix *Index) Search(query string) ([]any, uint64, error) {
+	if query == "" {
+		return make([]any, 0), 0, nil
+	}
+
+	q := bleve.NewQueryStringQuery(query)
+	searchRequest := bleve.NewSearchRequest(q)
+	searchRequest.Fields = []string{"*"}
+
+	result, err := ix.bleve.Search(searchRequest)
+	if err != nil {
+		return make([]any, 0), 0, err
+	}
+
+	items := make([]any, 0)
+	for _, d := range result.Hits {
+		items = append(items, d.Fields)
+	}
+
+	return items, result.Total, nil
 }
 
 func Get(name string) *Index {
@@ -40,14 +66,14 @@ func Load(basePath string) error {
 		name := entry.Name()
 		dbPath := path.Join(basePath, name)
 
-		ix, err := bleve.Open(dbPath)
+		bleveIx, err := bleve.Open(dbPath)
 
 		if err != nil {
 			return err
 		}
 
 		ixs[name] = &Index{
-			ix: ix,
+			bleve: bleveIx,
 		}
 	}
 
@@ -72,7 +98,7 @@ func Create(name string, mapping models.IndexMapping) error {
 	}
 
 	ixs[name] = &Index{
-		ix: ix,
+		bleve: ix,
 	}
 
 	return nil
@@ -85,7 +111,7 @@ func Drop(name string) error {
 		return errors.New("index not found")
 	}
 
-	if err := ix.ix.Close(); err != nil {
+	if err := ix.bleve.Close(); err != nil {
 		return err
 	}
 	delete(ixs, name)

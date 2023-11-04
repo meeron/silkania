@@ -9,5 +9,6 @@ func Config(app *fiber.App) {
 	app.Get("/", handlers.Index)
 	app.Get("/index/:name/search", handlers.Search)
 	app.Delete("/index/:name", handlers.DeleteIndex)
+	app.Put("/index/:name/:id", handlers.IndexDocument)
 	app.Post("/index", handlers.CreateIndex)
 }
