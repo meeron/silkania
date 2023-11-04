@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"log"
 	"os"
 	"path"
 
@@ -33,13 +34,18 @@ func Load(basePath string) error {
 	indexPath = basePath
 
 	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue
+		}
+
 		name := entry.Name()
 		dbPath := path.Join(basePath, name)
 
 		bleveIx, err := bleve.Open(dbPath)
 
 		if err != nil {
-			return err
+			log.Printf("WARN: Cannot load '%s': %v", name, err)
+			continue
 		}
 
 		ixs[name] = &Index{
