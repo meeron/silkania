@@ -8,6 +8,8 @@ import (
 	"path"
 
 	"github.com/blevesearch/bleve/v2"
+	"github.com/blevesearch/bleve/v2/mapping"
+	"github.com/meeron/silkania/models"
 )
 
 var ixs map[string]*Index = make(map[string]*Index)
@@ -52,13 +54,19 @@ func Load(basePath string) error {
 	return nil
 }
 
-func Create(name string, lang string) error {
-	mapping := bleve.NewIndexMapping()
+func Create(name string, mapping models.IndexMapping) error {
+	indexMapping := bleve.NewIndexMapping()
+
+	rootDocumentMapping := bleve.NewDocumentMapping()
+
+	mapFields(rootDocumentMapping, mapping.Fields)
+
+	indexMapping.AddDocumentMapping(mapping.DocumentType, rootDocumentMapping)
 
 	path := path.Join(indexPath, name)
 	fmt.Printf("%s\n", path)
 
-	ix, err := bleve.New(path, mapping)
+	ix, err := bleve.New(path, indexMapping)
 	if err != nil {
 		return err
 	}
@@ -88,4 +96,24 @@ func Drop(name string) error {
 	}
 
 	return nil
+}
+
+func mapFields(document *mapping.DocumentMapping, fields map[string]models.FieldMapping) {
+	for name, v := range fields {
+
+		if len(v.Fields) == 0 {
+			field := bleve.NewTextFieldMapping()
+			field.Analyzer = v.Lang
+			field.Name = name
+
+			document.AddFieldMapping(field)
+			continue
+		}
+
+		subDocument := bleve.NewDocumentMapping()
+
+		mapFields(subDocument, v.Fields)
+
+		document.AddSubDocumentMapping(name, subDocument)
+	}
 }
