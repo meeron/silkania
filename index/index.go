@@ -67,6 +67,23 @@ func (ix *Index) DeleteDocument(id string) error {
 	return ix.bleve.Delete(id)
 }
 
+func (ix *Index) Batch(idField string, items []map[string]any) error {
+	batch := ix.bleve.NewBatch()
+
+	for _, itm := range items {
+		id, ok := itm[idField].(string)
+		if !ok {
+			return fmt.Errorf("id must be string (id=%v)", itm[idField])
+		}
+
+		if err := batch.Index(id, itm); err != nil {
+			return err
+		}
+	}
+
+	return ix.bleve.Batch(batch)
+}
+
 func Get(name string) *Index {
 	return ixs[name]
 }
