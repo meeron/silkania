@@ -2,8 +2,10 @@ package index
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/blevesearch/bleve/v2"
+	"github.com/meeron/silkania/models"
 )
 
 type Index struct {
@@ -14,14 +16,29 @@ func (ix *Index) IndexDocument(id string, doc any) error {
 	return ix.bleve.Index(id, doc)
 }
 
-func (ix *Index) Search(query string) ([]any, uint64, error) {
-	if query == "" {
+func (ix *Index) Search(req *models.SearchReq) ([]any, uint64, error) {
+	if req.Q == "" {
 		return make([]any, 0), 0, nil
 	}
 
-	q := bleve.NewQueryStringQuery(query)
+	sortBy := make([]string, 0)
+
+	if req.SortBy == "" {
+		req.SortBy = "-_score"
+	}
+
+	sorts := strings.Split(req.SortBy, ",")
+	for _, s := range sorts {
+		sortBy = append(sortBy, strings.TrimSpace(s))
+	}
+
+	q := bleve.NewQueryStringQuery(req.Q)
+
 	searchRequest := bleve.NewSearchRequest(q)
 	searchRequest.Fields = []string{"*"}
+	searchRequest.Size = req.ItemsPerPage
+	searchRequest.From = (req.Page - 1) * req.ItemsPerPage
+	searchRequest.SortBy(sortBy)
 
 	result, err := ix.bleve.Search(searchRequest)
 	if err != nil {
