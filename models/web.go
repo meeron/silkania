@@ -1,8 +1,9 @@
 package models
 
 type CreateIndexReq struct {
-	Name    string
-	Mapping IndexMapping
+	Name        string
+	DefaultLang string
+	Mapping     IndexMapping
 }
 
 type SearchResult struct {

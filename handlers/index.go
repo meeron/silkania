@@ -20,7 +20,7 @@ func CreateIndex(ctx *fiber.Ctx) error {
 		return existsError(ctx)
 	}
 
-	if err := index.Create(body.Name, body.Mapping); err != nil {
+	if err := index.Create(body.Name, body.DefaultLang, body.Mapping); err != nil {
 		return serverErr(ctx, err)
 	}
 

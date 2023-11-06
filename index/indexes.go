@@ -11,6 +11,9 @@ import (
 	"github.com/blevesearch/bleve/v2"
 	"github.com/blevesearch/bleve/v2/mapping"
 	"github.com/meeron/silkania/models"
+
+	// to support standard set of build tags
+	_ "github.com/blevesearch/bleve/v2/config"
 )
 
 var ixs map[string]*Index = make(map[string]*Index)
@@ -56,8 +59,9 @@ func Load(basePath string) error {
 	return nil
 }
 
-func Create(name string, mapping models.IndexMapping) error {
+func Create(name string, defaultLang string, mapping models.IndexMapping) error {
 	indexMapping := bleve.NewIndexMapping()
+	indexMapping.DefaultAnalyzer = defaultLang
 
 	rootDocumentMapping := bleve.NewDocumentMapping()
 
